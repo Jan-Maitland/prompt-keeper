@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';">
+  <link rel="stylesheet" href="styles.css">
+  <title>Prompt Keeper Toolbar</title>
+</head>
+<body>
+  <!-- Row 1: Navigation + Identity -->
+  <div class="row nav-row">
+    <div class="nav-controls">
+      <button id="back-btn" class="nav-btn" title="Back">&larr;</button>
+      <button id="forward-btn" class="nav-btn" title="Forward">&rarr;</button>
+      <input id="url-bar" type="text" placeholder="Enter URL and press Enter..." spellcheck="false">
+    </div>
+    <div class="identity-controls">
+      <label for="artist">Artist:</label>
+      <input id="artist" type="text" placeholder="Name or initials">
+      <label for="tool">Tool:</label>
+      <select id="tool">
+        <option value="ChatGPT">ChatGPT</option>
+        <option value="Midjourney">Midjourney</option>
+        <option value="DALL-E">DALL-E</option>
+        <option value="Stable Diffusion">Stable Diffusion</option>
+        <option value="Runway">Runway</option>
+        <option value="Suno">Suno</option>
+        <option value="Udio">Udio</option>
+        <option value="Pika">Pika</option>
+        <option value="Kling">Kling</option>
+        <option value="Other">Other</option>
+      </select>
+      <input id="tool-custom" type="text" placeholder="Tool name..." class="hidden">
+    </div>
+  </div>
+
+  <!-- Row 2: Prompt input -->
+  <div class="row prompt-row">
+    <textarea id="prompt" placeholder="Type your prompt here, then click Log &amp; Copy..." rows="2"></textarea>
+    <button id="log-btn" class="btn-primary">Log &amp; Copy</button>
+  </div>
+
+  <!-- Row 3: Session info -->
+  <div class="row status-row">
+    <span id="counter">Session: 0 prompts logged</span>
+    <span id="feedback" class="feedback hidden"></span>
+    <button id="export-btn" class="btn-secondary">Export to PDF</button>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
