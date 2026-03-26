@@ -1,10 +1,26 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const path = require('path');
+
+const isSigningEnabled = process.env.APPLE_TEAM_ID && process.env.APPLE_API_KEY_ID;
 
 module.exports = {
   packagerConfig: {
     name: 'Prompt Keeper',
     asar: true,
+    ...(isSigningEnabled && {
+      osxSign: {
+        identity: 'Developer ID Application',
+        entitlements: path.join(__dirname, 'entitlements.plist'),
+        'entitlements-inherit': path.join(__dirname, 'entitlements.plist'),
+      },
+      osxNotarize: {
+        tool: 'notarytool',
+        appleApiKey: process.env.APPLE_API_KEY_PATH,
+        appleApiKeyId: process.env.APPLE_API_KEY_ID,
+        appleApiIssuer: process.env.APPLE_API_ISSUER,
+      },
+    }),
   },
   rebuildConfig: {},
   makers: [
@@ -12,6 +28,12 @@ module.exports = {
       name: '@electron-forge/maker-squirrel',
       config: {
         name: 'PromptKeeper',
+      },
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        format: 'ULFO',
       },
     },
     {

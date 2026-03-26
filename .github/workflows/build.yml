@@ -6,12 +6,59 @@ on:
   workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Write API key file
+        run: echo "${{ secrets.APPLE_API_KEY_P8 }}" > /tmp/AuthKey.p8
+
+      - name: Import signing certificate
+        env:
+          CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          echo "$CERTIFICATE_P12" | base64 --decode > /tmp/certificate.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import /tmp/certificate.p12 -k build.keychain -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          rm /tmp/certificate.p12
+
+      - name: Build signed app
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY_PATH: /tmp/AuthKey.p8
+        run: npm run make
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          rm -f /tmp/AuthKey.p8
+          security delete-keychain build.keychain 2>/dev/null || true
+
+      - name: Upload macOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-keeper-mac
+          path: out/make/**/*
+          retention-days: 90
+
+  build-windows:
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,16 +74,7 @@ jobs:
       - name: Build app
         run: npm run make
 
-      - name: Upload macOS build
-        if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
-        with:
-          name: prompt-keeper-mac
-          path: out/make/**/*
-          retention-days: 90
-
       - name: Upload Windows build
-        if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: prompt-keeper-windows
