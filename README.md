@@ -7,7 +7,7 @@ A desktop app for logging AI prompts used across web-based tools. Designed for c
 ### macOS
 1. Download **prompt-keeper-mac** from the [latest build](https://github.com/Jan-Maitland/prompt-keeper/actions)
 2. Unzip and drag **Prompt Keeper.app** to your Applications folder
-3. On first launch: right-click the app, select **Open**, then click **Open** again to bypass the Gatekeeper warning (this is a one-time step for unsigned apps)
+3. Double-click to open — the app is signed and notarized by Apple, so it will launch without any security warnings
 
 ### Windows
 1. Download **prompt-keeper-windows** from the [latest build](https://github.com/Jan-Maitland/prompt-keeper/actions)
